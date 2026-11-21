@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains results from SWMM simulations and the Jupyter notebook `Analysis.ipynb` used to analyze green stormwater infrastructure (GSI) performance for the study:
+This repository contains results from SWMM simulations and the Jupyter notebook Analysis.ipynb used to analyze green stormwater infrastructure (GSI) performance for the study:
 
 From Isolated to Cascading Green Stormwater Infrastructure: Effects of Configuration and Parameter Variability in Combined Sewer Systems.
 
@@ -65,7 +65,7 @@ Note: the loading-ratio sensitivity experiment is separate; it compares target c
 |---|---|---|
 | run_reduction.npz | NumPy archive with array percent_runoff_reduction. Axis order: [storm, scenario, parameter realization, subcatchment]; expected dimensions [6, 9, 1000, N], where N is the number of positions in the processed subcatchment array. Values are simulated runoff-volume reductions relative to the no-GSI baseline, in percent (%). | Runoff reductions, paired additional runoff reductions, variance decomposition, and PRCCs (main Figures 4–5; SI Figures S12–S15). |
 | index.npz | NumPy archive containing urban_idx, resi_idx, and green_idx. Each is an integer-position array identifying subcatchments in the urban, residential, and open-space categories, respectively. | Land-use selection for runoff analyses and PRCCs. |
-| parameter_ensemble.csv | One record per Monte Carlo parameter realization, with a simulation identifier and sampled GR, RG, and RB design parameters (see column dictionary below). The notebook sorts rows by simulation before calculating PRCCs. | PRCC analysis (SI Figures S13–S15). |
+| parameter_ensemble.csv | One record per Monte Carlo parameter realization, with a simulation and sampled GR, RG, and RB design parameters (see column dictionary below). The notebook sorts rows by simulation before calculating PRCCs. | PRCC analysis (SI Figures S13–S15). |
 
 The parameter columns used by the notebook are:
 
@@ -101,7 +101,7 @@ The parameter columns used by the notebook are:
 
 | Files | Contents / expected structure | Used for |
 |---|---|---|
-| run_reduction1.npz, run_reduction3.npz, run_reduction5.npz | Runoff reduction arrays for loading ratios 1:1, 3:1, and 5:1, respectively. Each has archive key *percent_reduction, with axis order [storm, configuration, realization, subcatchment], expected dimensions [6, 3, 100, N]. Values are runoff-volume reductions (%). | Added runoff reductions and runoff variance-share sensitivity (SI Figures S5–S6). |
+| run_reduction1.npz, run_reduction3.npz, run_reduction5.npz | Runoff reduction arrays for loading ratios 1:1, 3:1, and 5:1, respectively. Each has archive key percent_reduction, with axis order [storm, configuration, realization, subcatchment], expected dimensions [6, 3, 100, N]. Values are runoff-volume reductions (%). | Added runoff reductions and runoff variance-share sensitivity (SI Figures S5–S6). |
 | cso_reduction1.pkl, cso_reduction3.pkl, cso_reduction5.pkl | CSO-volume reductions (%) under the same loading ratios, each indexed by the six storm labels and containing a DataFrame with 100 matched realizations × three configurations (Isolated, Single-cascade, Two-cascade). | Added CSO reductions and CSO variance-share sensitivity (SI Figures S5–S6). |
 
 
@@ -110,12 +110,12 @@ The parameter columns used by the notebook are:
 | File | Contents / required columns | Used for |
 |---|---|---|
 | data_percent.csv | Aggregated implemented GSI area by Land use, Density, and Configuration, as a percentage of the total sewershed area. Six area columns: GR_iso, GR_cas, RG_iso, RG_cas, RB_iso, RB_cas. _iso denotes independently operating GSI area; _cas denotes cascade-connected area. | Main Figure 3. |
-| summary_by_landuse.csv | GSI suitability summary with GI (GR, RG, or RB), Land_use (Urban, Open space, or Residential), and Share_within_landuse_pct (potential area for that GSI type as a percentage of all considered GSI-suitable area in that land-use category). | SI Figure S8 and 10% type-retention threshold. |
+| summary_by_landuse.csv | GSI suitability summary with GI (GR, RG, or RB), Land_use (Urban, Open space, or Residential), and Share_within_landuse_pct (potential area for that GSI type as a percentage of all considered GSI-suitable area in that land-use category). | SI Figure S8. |
 | sub_percent.csv | Subcatchment-level implemented GSI area percentages. Required columns include Density_pct, Configuration, Land_use, and GR_iso_pct, GR_cas_pct, RG_iso_pct, RG_cas_pct, RB_iso_pct, RB_cas_pct. Percentages are relative to each subcatchment's area; records with zero GSI implementation are retained for spatial distributions. | SI Figure S9. |
 
 ## Analysis workflow and outputs
 
-Analysis.ipynb reads processed datasets and generates visualizations and calculated intermediate tables in memory. Its primary sections are:
+Analysis.ipynb reads processed datasets and generates visualizations and calculated intermediate tables. Its primary sections are:
 
 1. Runoff analysis: main Figure 4, variance decomposition for main Figure 5 and SI Figure S12, and PRCC summaries for SI Figures S13–S15.
 2. CSO analysis:main Figure 6, main Figure 7, and SI Figure S17.
@@ -126,14 +126,14 @@ Analysis.ipynb reads processed datasets and generates visualizations and calcula
 
 ## Running the notebook
 
-Place WRR_analysis.ipynb at the repository root and place all listed input files in the `data/` directory, or update DATA_DIR in the first code cell.
-Download runoff reduction from the Zenodo link: https://doi.org/10.5281/zenodo.24429706
+Place Analysis.ipynb at the repository root and place all listed input files in the data/ directory, or update DATA_DIR in the first code cell.
+Download subcatchment runoff reduction results from the Zenodo link: https://doi.org/10.5281/zenodo.24429706
 
 
 ## Notes on terminology
 
-- Runoff-volume reduction (%): percentage decrease from the no-GSI reference for the same event and catchment.
-- CSO-volume reduction (%): percentage decrease in sewershed CSO volume from the corresponding no-GSI event.
+- Runoff-volume reduction (%): percentage decrease from the no-GSI reference for the same event and subcatchment.
+- CSO-volume reduction (%): percentage decrease in sewershed CSO volume from the corresponding no-GSI reference.
 - Added cascading benefit (percentage points, pp): paired difference between a cascading configuration's reduction and the corresponding isolated-GSI reduction at the same storm, density, and parameter realization.
 - Variance component shares (%): sums-of-squares shares attributable to configuration, parameter realization, and the non-additive configuration–parameter component. 
 - PRCC: partial rank correlation between a sampled GSI design parameter and simulated runoff-volume reduction, controlling for the other parameters included for that scenario.
