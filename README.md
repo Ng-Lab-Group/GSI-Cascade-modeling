@@ -127,7 +127,7 @@ Analysis.ipynb reads processed datasets and generates visualizations and calcula
 ## Running the notebook
 
 Place WRR_analysis.ipynb at the repository root and place all listed input files in the `data/` directory, or update DATA_DIR in the first code cell.
-Download runoff reduction from the Zenodo link: 10.5281/zenodo.24429706
+Download runoff reduction from the Zenodo link: https://doi.org/10.5281/zenodo.24429706
 
 
 ## Notes on terminology
