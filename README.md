@@ -56,7 +56,7 @@ For arrays and tables with nine scenarios, the notebook expects this exact colum
 | 8 | Two-cascade | 75% |
 
 
-Note: the loading-ratio sensitivity experiment is separate: it compares target contributing-impervious-area-to-RG-area ratios of 1:1, 3:1, and 5:1 at 75% implementation density, using 100 matched parameter realizations. These files have three configurations, in the order Isolated, Single-cascade, Two-cascade.
+Note: the loading-ratio sensitivity experiment is separate; it compares target contributing-impervious-area-to-RG-area ratios of 1:1, 3:1, and 5:1 at 75% implementation density, using 100 matched parameter realizations. These files have three configurations, in the order Isolated, Single-cascade, Two-cascade.
 
 ## File descriptions
 
@@ -64,7 +64,7 @@ Note: the loading-ratio sensitivity experiment is separate: it compares target c
 
 | File | Contents / expected structure | Used for |
 |---|---|---|
-| `run_reduction.npz` | NumPy archive with array **`percent_reduction`**. Axis order: **[storm, scenario, parameter realization, subcatchment]**; expected dimensions **[6, 9, 1000, N]**, where `N` is the number of positions in the processed subcatchment array. Values are simulated runoff-volume reductions relative to the no-GSI baseline, **in percent (%)**. | Runoff reductions, paired additional runoff reductions, variance decomposition, and PRCCs (main Figures 4–5; SI Figures S12–S15). |
+| `run_reduction.npz` | NumPy archive with array `percent_reduction`. Axis order: [storm, scenario, parameter realization, subcatchment]; expected dimensions [6, 9, 1000, N], where `N` is the number of positions in the processed subcatchment array. Values are simulated runoff-volume reductions relative to the no-GSI baseline, in percent (%). | Runoff reductions, paired additional runoff reductions, variance decomposition, and PRCCs (main Figures 4–5; SI Figures S12–S15). |
 | `index.npz` | NumPy archive containing **`urban_idx`**, **`resi_idx`**, and **`green_idx`**. Each is an integer-position array or Boolean mask identifying subcatchments in the urban, residential, and open-space categories, respectively. Positions refer to the **last axis** of `percent_reduction`, not necessarily original SWMM subcatchment IDs. | Land-use selection for runoff analyses and PRCCs. |
 | `parameter_ensemble.csv` | One record per Monte Carlo parameter realization, with a **`simulation`** identifier and sampled GR, RG, and RB design parameters (see column dictionary below). The notebook sorts rows by `simulation` before calculating PRCCs. | PRCC analysis (SI Figures S13–S15). |
 
