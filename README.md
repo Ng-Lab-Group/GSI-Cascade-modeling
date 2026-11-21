@@ -23,7 +23,6 @@ repository/
     ├── cso_reduction.pkl
     ├── cso.npz
     ├── baseline_cso.csv
-    ├── convergence_summary.csv
     ├── absulate flow.csv
     ├── run_reduction1.npz
     ├── run_reduction3.npz
@@ -64,98 +63,78 @@ Note: the loading-ratio sensitivity experiment is separate; it compares target c
 
 | File | Contents / expected structure | Used for |
 |---|---|---|
-| `run_reduction.npz` | NumPy archive with array `percent_reduction`. Axis order: [storm, scenario, parameter realization, subcatchment]; expected dimensions [6, 9, 1000, N], where `N` is the number of positions in the processed subcatchment array. Values are simulated runoff-volume reductions relative to the no-GSI baseline, in percent (%). | Runoff reductions, paired additional runoff reductions, variance decomposition, and PRCCs (main Figures 4–5; SI Figures S12–S15). |
-| `index.npz` | NumPy archive containing **`urban_idx`**, **`resi_idx`**, and **`green_idx`**. Each is an integer-position array or Boolean mask identifying subcatchments in the urban, residential, and open-space categories, respectively. Positions refer to the **last axis** of `percent_reduction`, not necessarily original SWMM subcatchment IDs. | Land-use selection for runoff analyses and PRCCs. |
-| `parameter_ensemble.csv` | One record per Monte Carlo parameter realization, with a **`simulation`** identifier and sampled GR, RG, and RB design parameters (see column dictionary below). The notebook sorts rows by `simulation` before calculating PRCCs. | PRCC analysis (SI Figures S13–S15). |
+| run_reduction.npz | NumPy archive with array percent_runoff_reduction. Axis order: [storm, scenario, parameter realization, subcatchment]; expected dimensions [6, 9, 1000, N], where N is the number of positions in the processed subcatchment array. Values are simulated runoff-volume reductions relative to the no-GSI baseline, in percent (%). | Runoff reductions, paired additional runoff reductions, variance decomposition, and PRCCs (main Figures 4–5; SI Figures S12–S15). |
+| index.npz | NumPy archive containing urban_idx, resi_idx, and green_idx. Each is an integer-position array identifying subcatchments in the urban, residential, and open-space categories, respectively. | Land-use selection for runoff analyses and PRCCs. |
+| parameter_ensemble.csv | One record per Monte Carlo parameter realization, with a simulation identifier and sampled GR, RG, and RB design parameters (see column dictionary below). The notebook sorts rows by simulation before calculating PRCCs. | PRCC analysis (SI Figures S13–S15). |
 
 The parameter columns used by the notebook are:
 
 | Column | Meaning | Unit / representation |
 |---|---|---|
-| `simulation` | Monte Carlo realization identifier | ID; must align with simulation-axis order |
-| `ks_gr_cm_h` | GR saturated hydraulic conductivity | cm/h |
-| `porosity_gr` | GR soil porosity | fraction |
-| `gr_depth_cm` | GR soil depth | cm |
-| `gr_drainmat_cm` | GR drainage-mat depth | cm |
-| `ks_rg_cm_h` | RG saturated hydraulic conductivity | cm/h |
-| `porosity_rg` | RG soil porosity | fraction |
-| `rg_depth_cm` | RG soil depth | cm |
-| `rg_berm_cm` | RG berm height | cm |
-| `field_capacity` | Soil field capacity | volumetric fraction |
-| `initial_moisture` | Initial soil moisture content | volumetric fraction |
-| `suction_head_cm` | Soil suction head | cm |
-| `rb_volume_m3` | Volume of an individual rain barrel | m³ |
-| `rb_number_per_house` | Number of rain barrels per house | count |
+| simulation | Monte Carlo realization | ID |
+| ks_gr_cm_h | GR saturated hydraulic conductivity | cm/h |
+| porosity_gr | GR soil porosity | fraction |
+| gr_depth_cm | GR soil depth | cm |
+| gr_drainmat_cm | GR drainage-mat depth | cm |
+| ks_rg_cm_h | RG saturated hydraulic conductivity | cm/h |
+| porosity_rg | RG soil porosity | fraction |
+| rg_depth_cm | RG soil depth | cm |
+| rg_berm_cm | RG berm height | cm |
+| field_capacity | Soil field capacity | volumetric fraction |
+| initial_moisture | Initial soil moisture content | volumetric fraction |
+| suction_head_cm | Soil suction head | cm |
+| rb_volume_m3 | Volume of an individual rain barrel | m³ |
+| rb_number_per_house | Number of rain barrels per house | count |
 
-The shared fields `field_capacity`, `initial_moisture`, and `suction_head_cm` are used in both the GR and RG PRCC variable lists in the current notebook. These column names and meanings are inferred from the analysis code and design-parameter table; confirm their exact definition in the published parameter dataset.
 
 ### B. Primary CSO and runoff-volume summaries
 
 | File | Contents / expected structure | Used for |
 |---|---|---|
-| `cso_reduction.pkl` | Pickled Python object indexed by storm labels **`'1-Y'`, `'2-Y'`, `'5-Y'`, `'10-Y'`, `'25-Y'`, `'50-Y'`**. Each storm entry is a pandas DataFrame with Monte Carlo realizations as rows and **nine scenarios in the order above** as columns. Values are simulated **CSO-volume reductions (%)** relative to the no-GSI case. | CSO-reduction distributions, paired added CSO reductions, and three-configuration variance decomposition (main Figures 6–7; SI Figure S17). |
-| `cso.npz` | NumPy archive with array **`hydraulic_volumes`** containing simulated **CSO volumes (m³)**, indexed by storm, scenario, and Monte Carlo realization. The plotting code expects nine scenarios for each of six storms. | Absolute CSO-volume comparisons (SI Figure S16). |
-| `baseline_cso.csv` | Column **`cso`** with the baseline (no-GSI) **CSO volume (m³)** for each of the six design storms, in the specified storm order. | Baseline lines in SI Figure S16. |
-| `convergence_summary.csv` | Precomputed summaries of Monte Carlo subsampling errors. Required columns: **`response`**, **`metric`**, **`sample_size`**, **`median_error`**, **`q25_error`**, **`q75_error`**, **`p95_abs_error`**. `response` is `Runoff` or `CSO`; `metric` is `median`, `iqr`, or `p95`; sample sizes are 200, 400, 700, 900, and 1000. Error quantities are relative differences **in percent** from the full 1,000-run ensemble. | Convergence visualization (SI Figure S7). The notebook plots these precomputed values; it **does not rerun** the underlying random subsampling. |
-| `absulate flow.csv` | Land-use-level summary of total lateral inflow/runoff entering the sewer network, **in million US gallons**, including the no-GSI baseline and scenario medians. Required columns: **`land_use`**, **`configuration`**, **`storm_years`**, **`implementation_density_pct`**, **`baseline_million_gal`**, **`inflow_median_million_gal`**. The notebook converts million US gallons to m³ using **1 million US gal = 3,785.411784 m³**. | Land-use runoff volumes (SI Figure S11). |
+| cso_reduction.pkl | Simulated CSO reductions indexed by storm labels '1-Y', '2-Y', '5-Y', '10-Y', '25-Y', '50-Y'. Each storm entry is a pandas DataFrame with Monte Carlo realizations as rows and nine scenarios in the order above as columns. Values are simulated CSO-volume reductions (%) relative to the no-GSI case. | CSO-reduction distributions, paired added CSO reductions, and three-configuration variance decomposition (main Figures 6–7; SI Figure S17). |
+| cso.npz | NumPy archive with array containing simulated CSO volumes (m³), indexed by storm, scenario, and Monte Carlo realization. The plotting code expects nine scenarios for each of six storms. | Absolute CSO-volume comparisons (SI Figure S16). |
+| baseline_cso.csv | Column cso with the baseline (no-GSI) CSO volume (m³) for each of the six design storms, in the specified storm order. | Baseline lines in SI Figure S16. |
+| absulate flow.csv | Land-use-level summary of total lateral inflow/runoff entering the sewer network, in million US gallons, including the no-GSI baseline and scenario medians. Required columns: land_use, configuration, storm_years, implementation_density_pct, baseline_million_gal, inflow_median_million_gal. The notebook converts million US gallons to m³ using 1 million US gal = 3,785.411784 m³. | Land-use runoff volumes (SI Figure S11). |
 
-**Important:** The main Figure 6 code currently clips negative CSO-reduction values to zero for its plotted reduction and added-reduction summaries (`np.maximum(..., 0)`), whereas other calculations, including variance decomposition, use the original stored reductions. The README describes the stored data, not an assumption that all stored values are nonnegative.
 
 ### C. Loading-ratio sensitivity datasets (100 realizations)
 
 | Files | Contents / expected structure | Used for |
 |---|---|---|
-| `run_reduction1.npz`, `run_reduction3.npz`, `run_reduction5.npz` | Runoff reduction arrays for loading ratios **1:1**, **3:1**, and **5:1**, respectively. Each has archive key **`percent_reduction`**, with axis order **[storm, configuration, realization, subcatchment]**, expected dimensions **[6, 3, 100, N]**. Some archives may also contain an optional **`simulation`** array of realization IDs. Values are runoff-volume reductions (%). | Added runoff reductions and runoff variance-share sensitivity (SI Figures S5–S6). |
-| `cso_reduction1.pkl`, `cso_reduction3.pkl`, `cso_reduction5.pkl` | CSO-volume reductions (%) under the same loading ratios, each indexed by the six storm labels and containing a DataFrame with **100 matched realizations × three configurations** (Isolated, Single-cascade, Two-cascade). | Added CSO reductions and CSO variance-share sensitivity (SI Figures S5–S6). |
+| run_reduction1.npz, run_reduction3.npz, run_reduction5.npz | Runoff reduction arrays for loading ratios 1:1, 3:1, and 5:1, respectively. Each has archive key *percent_reduction, with axis order [storm, configuration, realization, subcatchment], expected dimensions [6, 3, 100, N]. Values are runoff-volume reductions (%). | Added runoff reductions and runoff variance-share sensitivity (SI Figures S5–S6). |
+| cso_reduction1.pkl, cso_reduction3.pkl, cso_reduction5.pkl | CSO-volume reductions (%) under the same loading ratios, each indexed by the six storm labels and containing a DataFrame with 100 matched realizations × three configurations (Isolated, Single-cascade, Two-cascade). | Added CSO reductions and CSO variance-share sensitivity (SI Figures S5–S6). |
 
-**Interpretation of 1:1, 3:1, and 5:1:** These are *target* contributing-impervious-area-to-RG-area loading ratios based on the RG area at **25% implementation density**, with contributing area limited by available non-GSI impervious area. They do **not** mean that actual loading is identical in every subcatchment.
 
 ### D. GSI suitability and implemented-area summaries
 
 | File | Contents / required columns | Used for |
 |---|---|---|
-| `data_percent.csv` | Aggregated implemented GSI area by **`Land use`**, **`Density`**, and **`Configuration`**, as a **percentage of the total sewershed area**. Six area columns: **`GR_iso`**, **`GR_cas`**, **`RG_iso`**, **`RG_cas`**, **`RB_iso`**, **`RB_cas`**. `_iso` denotes independently operating GSI area; `_cas` denotes cascade-connected area. | Main Figure 3. |
-| `summary_by_landuse.csv` | GSI suitability summary with **`GI`** (GR, RG, or RB), **`Land_use`** (Urban, Open space, or Residential), and **`Share_within_landuse_pct`** (potential area for that GSI type as a percentage of all considered GSI-suitable area in that land-use category). | SI Figure S8 and 10% type-retention threshold. |
-| `sub_percent.csv` | Subcatchment-level implemented GSI area percentages. Required columns include **`Density_pct`**, **`Configuration`**, **`Land_use`**, and **`GR_iso_pct`**, **`GR_cas_pct`**, **`RG_iso_pct`**, **`RG_cas_pct`**, **`RB_iso_pct`**, **`RB_cas_pct`**. Percentages are relative to **each subcatchment's area**; records with zero GSI implementation are retained for spatial distributions. | SI Figure S9. |
-
-The analysis uses exact categorical labels `Urban`, `Open space`, and `Residential` in the GSI area tables. The `Configuration` field is expected to use `Isolated`, `Single-cascade`, and `Two-cascade` wherever the notebook filters by those strings.
+| data_percent.csv | Aggregated implemented GSI area by Land use, Density, and Configuration, as a percentage of the total sewershed area. Six area columns: GR_iso, GR_cas, RG_iso, RG_cas, RB_iso, RB_cas. _iso denotes independently operating GSI area; _cas denotes cascade-connected area. | Main Figure 3. |
+| summary_by_landuse.csv | GSI suitability summary with GI (GR, RG, or RB), Land_use (Urban, Open space, or Residential), and Share_within_landuse_pct (potential area for that GSI type as a percentage of all considered GSI-suitable area in that land-use category). | SI Figure S8 and 10% type-retention threshold. |
+| sub_percent.csv | Subcatchment-level implemented GSI area percentages. Required columns include Density_pct, Configuration, Land_use, and GR_iso_pct, GR_cas_pct, RG_iso_pct, RG_cas_pct, RB_iso_pct, RB_cas_pct. Percentages are relative to each subcatchment's area; records with zero GSI implementation are retained for spatial distributions. | SI Figure S9. |
 
 ## Analysis workflow and outputs
 
-`WRR_analysis.ipynb` reads processed datasets and generates visualizations and calculated intermediate tables in memory. Its primary sections are:
+Analysis.ipynb reads processed datasets and generates visualizations and calculated intermediate tables in memory. Its primary sections are:
 
-1. **Runoff analysis:** main Figure 4, variance decomposition for main Figure 5 and SI Figure S12, and PRCC summaries for SI Figures S13–S15.
-2. **CSO analysis:** main Figure 6, main Figure 7, and SI Figure S17.
-3. **Supplemental analyses:** convergence (S7), absolute CSO volumes (S16), and land-use runoff volumes (S11).
-4. **Loading-ratio sensitivity:** added runoff/CSO benefits (S5) and variance-share sensitivity (S6).
-5. **GSI implementation and suitability:** main Figure 3 and SI Figures S8–S9.
+1. Runoff analysis: main Figure 4, variance decomposition for main Figure 5 and SI Figure S12, and PRCC summaries for SI Figures S13–S15.
+2. CSO analysis:main Figure 6, main Figure 7, and SI Figure S17.
+3. Supplemental analyses: absolute CSO volumes (S16), and land-use runoff volumes (S11).
+4. Loading-ratio sensitivity: added runoff/CSO benefits (S5) and variance-share sensitivity (S6).
+5. GSI implementation and suitability: main Figure 3 and SI Figures S8–S9.
 
-Not all maps, schematics, validation plots, and supplementary figures in the manuscript are regenerated by this notebook. In particular, the notebook does not currently contain figure-generation code for Figures 1–2 or SI Figures S1–S4 and S10.
 
 ## Running the notebook
 
-1. Place `WRR_analysis.ipynb` at the repository root and place **all listed input files** in the `data/` directory, or update `DATA_DIR` in the first code cell.
-2. Use a Python 3 environment with **NumPy**, **pandas**, **SciPy**, **Matplotlib**, and **Jupyter Notebook/Lab** installed. The source notebook metadata reports Python **3.13.9**; exact package versions are not recorded in the notebook.
-3. Open `WRR_analysis.ipynb` and run the cells from top to bottom. The notebook displays plots interactively; its current code does not automatically save all figures to files.
-4. Before using the figures for publication, verify that the data are aligned exactly as described below.
+Place WRR_analysis.ipynb at the repository root and place all listed input files in the `data/` directory, or update DATA_DIR in the first code cell.
 
-### Required consistency checks
-
-- `run_reduction.npz`: `percent_reduction` has six storms, nine scenarios, and 1,000 realizations in the expected order.
-- `index.npz`: land-use indices are valid positions along the runoff array's subcatchment axis.
-- `parameter_ensemble.csv`: its `simulation` sequence corresponds exactly to the runoff realization axis after sorting. The notebook currently sorts the parameter table but does **not** enforce this correspondence.
-- `cso_reduction.pkl` and `cso.npz`: storm/scenario/realization ordering matches the runoff data. For paired CSO comparisons, rows across scenarios must represent the same parameter realization.
-- Loading-ratio files: all 1:1/3:1/5:1 archives and CSO tables use the same set and ordering of 100 realizations. Optional simulation IDs should be checked before computing paired differences.
-- The files provide **processed results**, so re-running this notebook alone does not reproduce the underlying 54,000 SWMM simulations or reconstruct `convergence_summary.csv` from raw replicates.
 
 ## Notes on terminology
 
-- **Runoff-volume reduction (%)**: percentage decrease from the no-GSI reference for the same event and catchment.
-- **CSO-volume reduction (%)**: percentage decrease in sewershed CSO volume from the corresponding no-GSI event.
-- **Added cascading benefit (percentage points, pp)**: paired difference between a cascading configuration's reduction and the corresponding isolated-GSI reduction at the same storm, density, and parameter realization.
-- **Variance component shares (%)**: sums-of-squares shares attributable to configuration, parameter realization, and the non-additive configuration–parameter component. These are contributions to **modeled response variability across the scenario/parameter ensemble**, not a complete quantification of physical or predictive uncertainty.
-- **PRCC**: partial rank correlation between a sampled GSI design parameter and simulated runoff-volume reduction, controlling for the other parameters included for that scenario.
+- Runoff-volume reduction (%): percentage decrease from the no-GSI reference for the same event and catchment.
+- CSO-volume reduction (%): percentage decrease in sewershed CSO volume from the corresponding no-GSI event.
+- Added cascading benefit (percentage points, pp): paired difference between a cascading configuration's reduction and the corresponding isolated-GSI reduction at the same storm, density, and parameter realization.
+- Variance component shares (%): sums-of-squares shares attributable to configuration, parameter realization, and the non-additive configuration–parameter component. 
+- PRCC: partial rank correlation between a sampled GSI design parameter and simulated runoff-volume reduction, controlling for the other parameters included for that scenario.
 
-## Dataset documentation status
 
-The filenames, archive keys, array axis order, and CSV column names above were identified from `WRR_analysis.ipynb`. The processed data archives themselves were **not included with the notebook at the time this README was prepared**; their internal content, row counts, and exact saved dimensions must be checked against the files before depositing the final public dataset.
