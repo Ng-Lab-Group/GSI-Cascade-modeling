@@ -12,7 +12,7 @@ The analysis notebook reads the files listed below; the data files can be distri
 
 ## Directory layout
 
-```text
+text
 repository/
 ├── README.md                  
 ├── Analysis.ipynb         # Analysis and plotting notebook
@@ -33,7 +33,7 @@ repository/
     ├── data_percent.csv
     ├── summary_by_landuse.csv
     └── sub_percent.csv
-```
+
 
 
 ## Simulation design and ordering
