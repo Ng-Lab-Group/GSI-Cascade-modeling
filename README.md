@@ -6,35 +6,9 @@ This repository contains results from SWMM simulations and the Jupyter notebook 
 
 From Isolated to Cascading Green Stormwater Infrastructure: Effects of Configuration and Parameter Variability in Combined Sewer Systems.
 
-The analyses compare isolated GSI with cascading green roof–rain garden (GR–RG) and rain barrel–rain garden (RB–RG) configurations. They quantify subcatchment runoff-volume and sewershed combined sewer overflow (CSO)-volume reductions, additional benefits of cascading, variance shares associated with GSI configuration and sampled design parameters, partial rank correlation coefficients (PRCCs), and sensitivity to assumptions about contributing impervious area.
+The analyses quantify subcatchment runoff-volume and sewershed combined sewer overflow (CSO)-volume reductions, additional benefits of cascading, variance shares associated with GSI configuration and design-parameter, partial rank correlation coefficients (PRCCs), and sensitivity to assumptions about contributing impervious area.
 
 The analysis notebook reads the files listed below; the data files can be distributed separately, provided the relative paths are preserved.
-
-## Directory layout
-
-```text
-repository/
-├── README.md                  
-├── Analysis.ipynb         # Analysis and plotting notebook
-└── data/
-    ├── run_reduction.npz
-    ├── index.npz
-    ├── parameter_ensemble.csv
-    ├── cso_reduction.pkl
-    ├── cso.npz
-    ├── baseline_cso.csv
-    ├── absulate flow.csv
-    ├── run_reduction1.npz
-    ├── run_reduction3.npz
-    ├── run_reduction5.npz
-    ├── cso_reduction1.pkl
-    ├── cso_reduction3.pkl
-    ├── cso_reduction5.pkl
-    ├── data_percent.csv
-    ├── summary_by_landuse.csv
-    └── sub_percent.csv
-```
-
 
 ## Simulation design and ordering
 
@@ -66,6 +40,7 @@ Note: the loading-ratio sensitivity experiment is separate; it compares target c
 | run_reduction.npz | NumPy archive with array percent_runoff_reduction. Axis order: [storm, scenario, parameter realization, subcatchment]; expected dimensions [6, 9, 1000, N], where N is the number of positions in the processed subcatchment array. Values are simulated runoff-volume reductions relative to the no-GSI baseline, in percent (%). | Runoff reductions, paired additional runoff reductions, variance decomposition, and PRCCs (main Figures 4–5; SI Figures S12–S15). |
 | index.npz | NumPy archive containing urban_idx, resi_idx, and green_idx. Each is an integer-position array identifying subcatchments in the urban, residential, and open-space categories, respectively. | Land-use selection for runoff analyses and PRCCs. |
 | parameter_ensemble.csv | One record per Monte Carlo parameter realization, with a simulation and sampled GR, RG, and RB design parameters (see column dictionary below). The notebook sorts rows by simulation before calculating PRCCs. | PRCC analysis (SI Figures S13–S15). |
+| absulate flow.csv | Land-use-level summary of total lateral inflow/runoff entering the sewer network, in million US gallons, including the no-GSI baseline and scenario medians. Required columns: land_use, configuration, storm_years, implementation_density_pct, baseline_million_gal, inflow_median_million_gal. The notebook converts million US gallons to m³ using 1 million US gal = 3,785.411784 m³. | Land-use runoff volumes (SI Figure S11). |
 
 The parameter columns used by the notebook are:
 
@@ -87,14 +62,14 @@ The parameter columns used by the notebook are:
 | rb_number_per_house | Number of rain barrels per house | count |
 
 
-### B. Primary CSO and runoff-volume summaries
+### B. Primary CSO data
 
 | File | Contents / expected structure | Used for |
 |---|---|---|
 | cso_reduction.pkl | Simulated CSO reductions indexed by storm labels '1-Y', '2-Y', '5-Y', '10-Y', '25-Y', '50-Y'. Each storm entry is a pandas DataFrame with Monte Carlo realizations as rows and nine scenarios in the order above as columns. Values are simulated CSO-volume reductions (%) relative to the no-GSI case. | CSO-reduction distributions, paired added CSO reductions, and three-configuration variance decomposition (main Figures 6–7; SI Figure S17). |
 | cso.npz | NumPy archive with array containing simulated CSO volumes (m³), indexed by storm, scenario, and Monte Carlo realization. The plotting code expects nine scenarios for each of six storms. | Absolute CSO-volume comparisons (SI Figure S16). |
 | baseline_cso.csv | Column cso with the baseline (no-GSI) CSO volume (m³) for each of the six design storms, in the specified storm order. | Baseline lines in SI Figure S16. |
-| absulate flow.csv | Land-use-level summary of total lateral inflow/runoff entering the sewer network, in million US gallons, including the no-GSI baseline and scenario medians. Required columns: land_use, configuration, storm_years, implementation_density_pct, baseline_million_gal, inflow_median_million_gal. The notebook converts million US gallons to m³ using 1 million US gal = 3,785.411784 m³. | Land-use runoff volumes (SI Figure S11). |
+
 
 
 ### C. Loading-ratio sensitivity datasets (100 realizations)
@@ -127,7 +102,7 @@ Analysis.ipynb reads processed datasets and generates visualizations and calcula
 ## Running the notebook
 
 Place Analysis.ipynb at the repository root and place all listed input files in the data/ directory, or update DATA_DIR in the first code cell.
-Download subcatchment runoff reduction results from the Zenodo link: https://doi.org/10.5281/zenodo.24429706
+Download subcatchment runoff reduction results using the Zenodo link: https://doi.org/10.5281/zenodo.24429706.
 
 
 ## Notes on terminology
@@ -136,6 +111,6 @@ Download subcatchment runoff reduction results from the Zenodo link: https://doi
 - CSO-volume reduction (%): percentage decrease in sewershed CSO volume from the corresponding no-GSI reference.
 - Added cascading benefit (percentage points, pp): paired difference between a cascading configuration's reduction and the corresponding isolated-GSI reduction at the same storm, density, and parameter realization.
 - Variance component shares (%): sums-of-squares shares attributable to configuration, parameter realization, and the non-additive configuration–parameter component. 
-- PRCC: partial rank correlation between a sampled GSI design parameter and simulated runoff-volume reduction, controlling for the other parameters included for that scenario.
+- PRCC: partial rank correlation between a sampled GSI design parameter and simulated subcatchment runoff-volume reduction, controlling for the other parameters included for that scenario.
 
 
